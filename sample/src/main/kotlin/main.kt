@@ -14,7 +14,7 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 
 
-fun main() = WindowApiNew().openCloseMultiWindow()
+fun main() = TopAppBarSample().topAppBar()
 
 fun main2() = application {
 	Window(
