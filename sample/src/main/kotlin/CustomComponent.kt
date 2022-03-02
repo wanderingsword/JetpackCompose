@@ -2,22 +2,20 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.*
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import apktool.BorderColor
+import apktool.ContentBackground
 import apktool.operFixParam
+import apktool.TextColor
 
 @Composable
 fun <T> Table(
@@ -54,20 +52,27 @@ fun <T> Table(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Table1(columnCount: Int) {
+fun Table1(columnCount: Int, data: Map<String, String>) {
     LazyVerticalGrid(
         cells = GridCells.Fixed(columnCount),
-        contentPadding = PaddingValues(8.dp)
     ) {
-        items(operFixParam.keys.toList()) { key ->
-            Text(
-                text = key,
-                modifier = Modifier.background(Color.LightGray).border(border = BorderStroke(1.dp, Color.LightGray))
-            )
-            Text(
-                text = operFixParam[key]!!,
-                modifier = Modifier.border(border = BorderStroke(1.dp, Color.LightGray))
-            )
+        data.forEach { entry ->
+            tableCell(entry.key, true)
+            tableCell(entry.value, false)
         }
     }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+fun LazyGridScope.tableCell(text: String, isTitle: Boolean) {
+    item {
+        Text(
+            text = text,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            color = if (isTitle) Color.Black else TextColor,
+            modifier = Modifier.border(BorderStroke(1.dp, BorderColor)).background(if (isTitle) ContentBackground else Color.White).padding(5.dp),
+        )
+    }
+
 }

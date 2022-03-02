@@ -18,6 +18,9 @@ repositories {
 //依赖
 dependencies {
 	implementation(compose.desktop.currentOs)
+	implementation("net.dongliu:apk-parser:2.6.10")
+	implementation("com.squareup.okio:okio:3.0.0")
+	implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.3")
 }
 
 //配置编译使用的 jdk 版本

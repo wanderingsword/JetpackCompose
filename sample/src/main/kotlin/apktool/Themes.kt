@@ -5,9 +5,13 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
+val ContentBackground = Color(0xFFFAFAFA)
+val SideBarItemTitleColor = Color(0xFF49494E)
+val ItemHoverTextColor = Color(0xFF5856D5)
+val ItemHoverBackgroundColor = Color(0xFFDEDDF7)
+val BorderColor = Color(0xFFDFE2E5)
+val TextColor = Color(0xFF929292)
 
-val SideBarBackground = Color(0xFAFAFAFF)
-val SideBarItemTitleColor = Color(0xBCBCC0FF)
 
 @Composable
 fun ApkToolTheme(
