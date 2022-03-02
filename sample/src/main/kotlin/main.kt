@@ -12,9 +12,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import apktool.ApkToolMain
 
 
-fun main() = TopAppBarSample().topAppBar()
+fun main() = ApkToolMain().main()
 
 fun main2() = application {
 	Window(

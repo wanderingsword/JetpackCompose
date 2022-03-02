@@ -1,22 +1,26 @@
+package apktool
+
 import androidx.compose.desktop.DesktopTheme
-import androidx.compose.foundation.LocalScrollbarStyle
-import androidx.compose.foundation.ScrollbarStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 
+
+val SideBarBackground = Color(0xFAFAFA)
+val SideBarItemTitleColor = Color(0xBCBCC0FF)
 
 @Composable
 fun ApkToolTheme(
     content: @Composable () -> Unit
 ) {
-    MaterialTheme(
-        content = content
-    )
+    MaterialTheme {
+        DesktopTheme {
+            content()
+        }
+    }
 }
 
-@Composable
+/*@Composable
 fun ApkToolThemeDeskTopTheme(content: @Composable () -> Unit) {
     CompositionLocalProvider(
         LocalScrollbarStyle provides scrollbar,
@@ -31,4 +35,4 @@ val scrollbar = ScrollbarStyle(
     hoverDurationMillis = 300,
     unhoverColor = MaterialTheme.colors.onSurface.copy(alpha = 0.12f),
     hoverColor = MaterialTheme.colors.onSurface.copy(alpha = 0.50f)
-)
+)*/

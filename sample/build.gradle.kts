@@ -23,8 +23,8 @@ dependencies {
 //配置编译使用的 jdk 版本
 tasks.withType<KotlinCompile> {
 	kotlinOptions.jvmTarget = "11"
+	kotlinOptions.freeCompilerArgs += "-opt-in=org.mylibrary.OptInAnnotation"
 }
-
 //配置程序主类
 compose.desktop {
 	application {
