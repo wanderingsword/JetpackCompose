@@ -36,7 +36,7 @@ class ApkToolMain {
                 ApkToolTheme {
                     Row {
                         if (showSideBar) {
-                            Box(modifier = Modifier.width(200.dp).background(color = SideBarBackground)) {
+                            Box(modifier = Modifier.width(200.dp).fillMaxHeight().background(color = SideBarBackground)) {
                                 optionsList()
                             }
                         }
@@ -66,7 +66,9 @@ class ApkToolMain {
 
     @Composable
     fun optionItemView(title: String) {
-        Row {
+        Row(
+                modifier = Modifier.background(color = SideBarBackground)
+        ) {
             Spacer(modifier = Modifier.width(8.dp))
 
             Text(

@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 
-val SideBarBackground = Color(0xFAFAFA)
+val SideBarBackground = Color(0xFAFAFAFF)
 val SideBarItemTitleColor = Color(0xBCBCC0FF)
 
 @Composable
