@@ -1,0 +1,4 @@
+package apktool
+
+class ApkReaderState {
+}
