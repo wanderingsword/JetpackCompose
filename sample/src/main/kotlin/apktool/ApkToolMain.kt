@@ -1,8 +1,8 @@
 package apktool
 
 import Table1
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -24,6 +24,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import java.awt.datatransfer.DataFlavor
+import java.awt.dnd.DnDConstants
+import java.awt.dnd.DropTarget
+import java.awt.dnd.DropTargetDropEvent
+import java.io.File
 
 //import androidx.compose.runtime.setValue
 
@@ -32,111 +37,131 @@ private val options = mutableListOf(OPTION_PROPERTY)
 
 class ApkToolMain {
 
-    fun main() = application {
-        val showSideBar by remember { mutableStateOf(true) }
-        val selectOption by remember { mutableStateOf(OPTION_PROPERTY) }
+  fun main() = application {
+    val showSideBar by remember { mutableStateOf(true) }
+    val selectOption by remember { mutableStateOf(OPTION_PROPERTY) }
 
-        Window(
-            onCloseRequest = ::exitApplication,
-            icon = appIcon(),
-            title = "apktools"
-        ) {
-            Surface(Modifier.fillMaxSize()) {
-                ApkToolTheme {
-                    Row {
-                        if (showSideBar) {
-                            Box(
-                                modifier = Modifier.width(200.dp).fillMaxHeight().background(color = ContentBackground)
-                            ) {
+    val apkPath by remember { mutableStateOf("/Users/zhouyanxia/Downloads/xlcw_webpay_hsyw.apk") }
 
-                                SideBarView()
-                            }
-                        }
-                        Spacer(modifier = Modifier.width(1.dp).fillMaxHeight())
-                        Column (
-                            Modifier.fillMaxHeight().padding(10.dp)
-                        ) {
-                            optionView(selectOption)
-                        }
-                    }
+    LaunchedEffect(apkPath) {
+      val apkReader = ApkReader(apkPath)
+      apkReader.readIcons()
+    }
 
-                }
+    Window(
+        onCloseRequest = ::exitApplication,
+        icon = apkToolsIcon(),
+        title = "apktools"
+    ) {
+      Surface(Modifier.fillMaxSize()) {
+        ApkToolTheme {
+          Row {
+            if (showSideBar) {
+              Box(
+                  modifier = Modifier.width(200.dp).fillMaxHeight().background(color = ContentBackground)
+              ) {
+                SideBarView()
+              }
             }
-
-        }
-    }
-
-
-    //侧边栏
-    @Composable
-    fun SideBarView() {
-        //Apk 基本信息
-        ApkMetaInfo()
-
-        //侧边栏操作选项列表
-        optionList()
-    }
-
-    @Composable
-    private fun ApkMetaInfo() {
-        Card {
-
-        }
-    }
-
-    @Composable
-    private fun optionList() {
-        if (options.isNotEmpty()) {
-            Column {
-                options.forEach {
-                    optionItemView(it)
-                }
+            Spacer(modifier = Modifier.width(1.dp).fillMaxHeight())
+            Column(
+                Modifier.fillMaxHeight().padding(10.dp)
+            ) {
+              optionView(selectOption)
             }
+          }
+
         }
+      }
     }
+  }
 
 
+  //侧边栏
+  @Composable
+  fun SideBarView() {
+    //Apk 基本信息
+    ApkMetaInfo()
 
-    @Composable
-    fun optionItemView(title: String) {
-        val interactionSource = remember { MutableInteractionSource() }
-        val isHovered by interactionSource.collectIsHoveredAsState()
+    //侧边栏操作选项列表
+    optionList()
+  }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .hoverable(interactionSource = interactionSource)
-                .background(color = if (isHovered) ItemHoverBackgroundColor else ContentBackground),
-        ) {
-            Spacer(modifier = Modifier.width(8.dp))
 
-            Text(
-                text = AnnotatedString(title),
-                maxLines = 1,
-                color = if (isHovered) ItemHoverTextColor else SideBarItemTitleColor,
-                modifier = Modifier.align(Alignment.CenterVertically).padding(horizontal = 8.dp, vertical = 2.dp),
-                overflow = TextOverflow.Ellipsis
-            )
+  @Composable
+  private fun ApkMetaInfo() {
+    Card {
+
+    }
+  }
+
+  @Composable
+  private fun optionList() {
+    if (options.isNotEmpty()) {
+      Column {
+        options.forEach {
+          optionItemView(it)
         }
+      }
     }
+  }
 
-    @Composable
-    fun optionView(title: String) {
-        TopAppBar(
-            title = {
-                Text(title)
-            },
-            backgroundColor = ContentBackground,
-            modifier = Modifier.height(50.dp)
-        )
 
-        Spacer(Modifier.height(5.dp))
+  @Composable
+  fun optionItemView(title: String) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
 
-        Table1(4, operFixParam)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .hoverable(interactionSource = interactionSource)
+            .background(color = if (isHovered) ItemHoverBackgroundColor else ContentBackground),
+    ) {
+      Spacer(modifier = Modifier.width(8.dp))
+
+      Text(
+          text = AnnotatedString(title),
+          maxLines = 1,
+          color = if (isHovered) ItemHoverTextColor else SideBarItemTitleColor,
+          modifier = Modifier.align(Alignment.CenterVertically).padding(horizontal = 8.dp, vertical = 2.dp),
+          overflow = TextOverflow.Ellipsis
+      )
     }
+  }
 
-    @Composable
-    fun appIcon(): Painter {
-        return painterResource("floatball.png")
+  @Composable
+  fun optionView(title: String) {
+    TopAppBar(
+        title = {
+          Text(title)
+        },
+        backgroundColor = ContentBackground,
+        modifier = Modifier.height(50.dp)
+    )
+
+    Spacer(Modifier.height(5.dp))
+
+    Table1(4, operFixParam)
+  }
+
+  @Composable
+  fun apkToolsIcon(): Painter {
+    return painterResource("floatball.png")
+  }
+
+  @Composable
+  fun apkIconImage() {
+
+  }
+
+  val drogTarget = object : DropTarget() {
+    override fun drop(dtde: DropTargetDropEvent) {
+      dtde.acceptDrop(DnDConstants.ACTION_REFERENCE)
+      val droppedFiles = dtde.transferable.getTransferData(DataFlavor.javaFileListFlavor) as List<*>
+      droppedFiles.forEach { file ->
+        println((file as File).absolutePath)
+      }
     }
+  }
 }

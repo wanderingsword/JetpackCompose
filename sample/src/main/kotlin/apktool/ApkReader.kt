@@ -21,6 +21,10 @@ class ApkReader(apkPath: String) {
   private val apkFile: ApkFile = ApkFile(apkPath)
   private val paraMap = mutableMapOf<String, String>()
 
+  init {
+    parseApk()
+  }
+
   private fun parseApk() {
     paraMap.putAll(readPlatformConfig())
     paraMap.putAll(readVersionBytes())
@@ -44,7 +48,7 @@ class ApkReader(apkPath: String) {
         val key = lineWithoutSpace.substring(0 until equalIndex)
         val value =
           if (equalIndex == lineWithoutSpace.length - 1) "" else lineWithoutSpace.substring(
-            equalIndex + 1..lineWithoutSpace.length
+            equalIndex + 1 until lineWithoutSpace.length
           )
         put(key, value)
       }
@@ -138,7 +142,7 @@ class ApkReader(apkPath: String) {
   }
 
   //读取图标
-  private fun readIcons() {
+  fun readIcons() {
     apkFile.allIcons.forEach { iconFace ->
       println("iconPath: ${iconFace.path}")
     }
