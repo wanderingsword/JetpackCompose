@@ -81,14 +81,14 @@ class ApkReader(apkPath: String) {
   }
 
   //读取 apk 版本相关信息
-  private fun readApkMetaInfo(): List<Property> {
-    return listOf(
-      Property(appName, apkFile.apkMeta.name),
-      Property(packageName, apkFile.apkMeta.packageName),
-      Property(versionName, apkFile.apkMeta.versionName),
-      Property(versionCode, apkFile.apkMeta.versionCode.toString()),
-      Property(minSdkVersion, apkFile.apkMeta.minSdkVersion),
-      Property(targetSdkVersion, apkFile.apkMeta.targetSdkVersion)
+  fun readApkMetaInfo(): Map<String, String> {
+    return mapOf(
+      appName to apkFile.apkMeta.name,
+      packageName to apkFile.apkMeta.packageName,
+      versionName to apkFile.apkMeta.versionName,
+      versionCode to apkFile.apkMeta.versionCode.toString(),
+      minSdkVersion to apkFile.apkMeta.minSdkVersion,
+      targetSdkVersion to apkFile.apkMeta.targetSdkVersion
     )
   }
 
@@ -142,10 +142,11 @@ class ApkReader(apkPath: String) {
   }
 
   //读取图标
-  fun readIcons() {
+  fun readIcons(): ByteArray {
     apkFile.allIcons.forEach { iconFace ->
       println("iconPath: ${iconFace.path}")
     }
+    return apkFile.allIcons[0].data
   }
 
   private fun readCertificationMd5() {

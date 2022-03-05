@@ -2,8 +2,13 @@ package apktool
 
 import androidx.compose.desktop.DesktopTheme
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import apktool.xlcw.appName
 
 val ContentBackground = Color(0xFFFAFAFA)
 val SideBarItemTitleColor = Color(0xFF49494E)
@@ -12,6 +17,8 @@ val ItemHoverBackgroundColor = Color(0xFFDEDDF7)
 val BorderColor = Color(0xFFDFE2E5)
 val TextColor = Color(0xFF929292)
 
+
+val APK_ICON_WIDTH = 50.dp
 
 @Composable
 fun ApkToolTheme(
@@ -22,6 +29,12 @@ fun ApkToolTheme(
             content()
         }
     }
+}
+
+
+@Composable
+fun SideCardText() {
+
 }
 
 /*@Composable
