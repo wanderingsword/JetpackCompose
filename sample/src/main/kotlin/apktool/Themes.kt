@@ -16,6 +16,7 @@ val ItemHoverTextColor = Color(0xFF5856D5)
 val ItemHoverBackgroundColor = Color(0xFFDEDDF7)
 val BorderColor = Color(0xFFDFE2E5)
 val TextColor = Color(0xFF929292)
+val TABLE_TITLE_COLOR = Color(0xFF77777C)
 
 
 val APK_ICON_WIDTH = 50.dp
