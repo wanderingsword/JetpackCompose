@@ -15,10 +15,10 @@ import java.awt.dnd.DropTarget
 import java.awt.dnd.DropTargetDropEvent
 import java.io.File
 
-private const val SIDEBAR_PROPERTY = "参数"
-private const val OPTION_TABLE_TITLE = "运营固定参数"
-private const val TECH_FIX_TABLE_TITLE = "技术固定参数"
-private const val SIDEBAR_PACK_APP_CONFIG = "出包配置参数"
+const val SIDEBAR_PROPERTY = "参数"
+const val OPTION_TABLE_TITLE = "运营固定参数"
+const val TECH_FIX_TABLE_TITLE = "技术固定参数"
+const val SIDEBAR_PACK_APP_CONFIG = "出包配置参数"
 private lateinit var apkReader: ApkReader
 
 
@@ -26,14 +26,17 @@ class ApkToolMain {
 
   fun main() = application {
     val showSideBar by remember { mutableStateOf(true) }
-    val selectOption by remember { mutableStateOf(SIDEBAR_PROPERTY) }
-    val apkPath by remember { mutableStateOf("E:\\xlcw_webpay_hsyw.apk") }
+    var selectOption by remember { mutableStateOf(SIDEBAR_PROPERTY) }
+    //macOS: /Users/zhouyanxia/Downloads/z2022030101_xlcw_webpay_zt_30.1.41_202203071545_l1099.apk
+    //windows: E:\xlcw_webpay_hsyw.apk
+    val apkPath by remember { mutableStateOf("/Users/zhouyanxia/Downloads/z2022030101_xlcw_webpay_zt_30.1.41_202203071545_l1099.apk") }
     var apkMetaInfo by remember { mutableStateOf(emptyMap<String, String>()) }
+    var apkIconData by remember { mutableStateOf(byteArrayOf()) }
     val options = mutableListOf(SIDEBAR_PROPERTY, SIDEBAR_PACK_APP_CONFIG)
 
     LaunchedEffect(apkPath) {
       apkReader = ApkReader(apkPath)
-      apkReader.readIcons()
+      apkIconData = apkReader.readIcons()
       apkMetaInfo = apkReader.readApkMetaInfo()
     }
 
@@ -50,11 +53,11 @@ class ApkToolMain {
         ApkToolTheme {
           Row {
             if (showSideBar) {
-              SideBarView(options, apkMetaInfo, Modifier.width(250.dp))
+              sideBarView(apkIconData, options, apkMetaInfo, Modifier.width(250.dp), onClickOption = {
+                selectOption = it
+              })
+              Spacer(modifier = Modifier.width(1.dp).fillMaxHeight())
             }
-
-            Spacer(modifier = Modifier.width(1.dp).fillMaxHeight())
-
             optionView(selectOption)
           }
 
@@ -66,11 +69,6 @@ class ApkToolMain {
   @Composable
   fun apkToolsIcon(): Painter {
     return painterResource("floatball.png")
-  }
-
-  @Composable
-  fun apkIconImage(bytes: ByteArray) {
-
   }
 
   val drogTarget = object : DropTarget() {

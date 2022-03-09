@@ -1,18 +1,19 @@
 package apktool
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -29,49 +30,84 @@ import apktool.xlcw.versionName
 
 //侧边栏
 @Composable
-fun SideBarView(options: List<String>, apkMetaInfo: Map<String, String>, modifier: Modifier = Modifier) {
+fun sideBarView(apkIconData: ByteArray,
+                options: List<String>,
+                apkMetaInfo: Map<String, String>,
+                modifier: Modifier = Modifier,
+                onClickOption: ((String) -> Unit) = {}) {
+
   Column(modifier = modifier.fillMaxHeight().background(color = ContentBackground)) {
     //显示 Apk 基本信息
-    SideBarHeader(
-      appName = apkMetaInfo[appName].let { it ?: "" },
-      packageName = apkMetaInfo[packageName].let { it ?: "" },
-      versionInfo = "${apkMetaInfo[versionName]}  ${apkMetaInfo[versionCode]}",
-      BitmapPainter(org.jetbrains.skia.Image.makeFromEncoded(apkReader.readIcons()).toComposeImageBitmap())
+    sideBarHeader(
+        appName = apkMetaInfo[appName].let { it ?: "" },
+        packageName = apkMetaInfo[packageName].let { it ?: "" },
+        versionName = apkMetaInfo[versionName].let { it ?: "" },
+        versionCode = apkMetaInfo[versionCode].let { it ?: "" },
+        appIcon = BitmapPainter(org.jetbrains.skia.Image.makeFromEncoded(apkIconData).toComposeImageBitmap())
     )
 
     //侧边栏操作选项列表
-    SideBarOptionList(options)
+    sideBarOptionList(options, onClickOption)
   }
 }
 
 @Composable
-private fun SideBarHeader(appName: String, packageName: String, versionInfo: String, appIcon: BitmapPainter) {
+private fun sideBarHeader(appName: String, packageName: String, versionName: String, versionCode: String, appIcon: BitmapPainter) {
   Card(
-    modifier = Modifier.padding(horizontal = 2.dp, vertical = 8.dp),
+      modifier = Modifier.padding(5.dp),
   ) {
-    Row {
+    Row(
+        modifier = Modifier.padding(8.dp)
+    ) {
       Column {
         Image(
-          painter = appIcon,
-          contentDescription = "apk icon",
-          modifier = Modifier.width(APK_ICON_WIDTH),
-          contentScale = ContentScale.Crop,
+            painter = appIcon,
+            contentDescription = "apk icon",
+            modifier = Modifier.width(APK_ICON_WIDTH),
+            contentScale = ContentScale.Crop,
         )
 
-        Spacer(Modifier.height(3.dp))
+        Spacer(Modifier.height(5.dp))
 
-        SideCardTextItem(appName)
+        Text(
+            modifier = Modifier.width(APK_ICON_WIDTH),
+            text = appName,
+            maxLines = 1,
+            overflow = TextOverflow.Clip,
+            fontSize = 12.sp,
+            textAlign = TextAlign.Center
+        )
       }
 
+      Spacer(Modifier.width(10.dp))
+
       Column(
-        Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+          Modifier.fillMaxWidth()
       ) {
-        SideCardTextItem(packageName)
+        Text(
+            text = packageName,
+            maxLines = 1,
+            overflow = TextOverflow.Clip,
+            fontSize = 12.sp,
+        )
 
-        Spacer(Modifier.height(3.dp))
+        Spacer(Modifier.height(5.dp))
 
-        SideCardTextItem(versionInfo)
+        Text(
+            text = versionName,
+            maxLines = 1,
+            overflow = TextOverflow.Clip,
+            fontSize = 12.sp,
+        )
+
+        Spacer(Modifier.height(5.dp))
+
+        Text(
+            text = versionCode,
+            maxLines = 1,
+            overflow = TextOverflow.Clip,
+            fontSize = 12.sp,
+        )
       }
     }
 
@@ -79,46 +115,40 @@ private fun SideBarHeader(appName: String, packageName: String, versionInfo: Str
 }
 
 @Composable
-private fun SideCardTextItem(content: String) {
-  Text(
-    text = content,
-    maxLines = 1,
-    overflow = TextOverflow.Clip,
-    fontSize = 12.sp,
-    textAlign = TextAlign.Center
-  )
-}
-
-@Composable
-private fun SideBarOptionList(options: List<String>) {
+private fun sideBarOptionList(options: List<String>, onClickOption: (String) -> Unit) {
   if (options.isNotEmpty()) {
     Column {
       options.forEach {
-        optionItemView(it)
+        optionItemView(it, onClickOption)
       }
     }
   }
 }
 
 @Composable
-fun optionItemView(title: String) {
+fun optionItemView(title: String, onClickOption: (String) -> Unit) {
   val interactionSource = remember { MutableInteractionSource() }
   val isHovered by interactionSource.collectIsHoveredAsState()
 
   Row(
-    modifier = Modifier
-      .fillMaxWidth()
-      .hoverable(interactionSource = interactionSource)
-      .background(color = if (isHovered) ItemHoverBackgroundColor else ContentBackground),
-  ) {
-    Spacer(modifier = Modifier.width(8.dp))
+      modifier = Modifier
+          .fillMaxWidth()
+          .hoverable(interactionSource = interactionSource)
+          .padding(2.dp)
+          .border(BorderStroke(1.dp, ContentBackground), RoundedCornerShape(5.dp))
+          .background(color = if (isHovered) ItemHoverBackgroundColor else ContentBackground)
+          .padding(5.dp)
+          .clickable {
+            onClickOption(title)
+          }
 
+  ) {
     Text(
-      text = AnnotatedString(title),
-      maxLines = 1,
-      color = if (isHovered) ItemHoverTextColor else SideBarItemTitleColor,
-      modifier = Modifier.align(Alignment.CenterVertically).padding(horizontal = 8.dp, vertical = 2.dp),
-      overflow = TextOverflow.Ellipsis
+        text = AnnotatedString(title),
+        maxLines = 1,
+        color = if (isHovered) ItemHoverTextColor else SideBarItemTitleColor,
+        modifier = Modifier.align(Alignment.CenterVertically).padding(horizontal = 8.dp, vertical = 2.dp),
+        overflow = TextOverflow.Ellipsis
     )
   }
 }
