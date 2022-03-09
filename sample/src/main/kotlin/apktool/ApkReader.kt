@@ -1,5 +1,6 @@
 package apktool
 
+import androidx.compose.runtime.mutableStateOf
 import apktool.xlcw.*
 import net.dongliu.apk.parser.ApkFile
 import okhttp3.OkHttpClient
@@ -142,11 +143,19 @@ class ApkReader(apkPath: String) {
   }
 
   //读取图标
-  fun readIcons(): ByteArray {
+  fun readIcon(): ByteArray {
     apkFile.allIcons.forEach { iconFace ->
       println("iconPath: ${iconFace.path}")
     }
     return apkFile.allIcons[0].data
+  }
+
+  fun readAllIcon(): List<ByteArray> {
+    return mutableListOf<ByteArray>().apply {
+      apkFile.allIcons.forEach {
+        add(it.data)
+      }
+    }
   }
 
   private fun readCertificationMd5() {

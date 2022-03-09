@@ -15,11 +15,14 @@ import java.awt.dnd.DropTarget
 import java.awt.dnd.DropTargetDropEvent
 import java.io.File
 
+const val OPTION_TITLE = "运营固定参数"
+const val TECH_FIX_TITLE = "技术固定参数"
+const val ALL_ICON_TITLE = "所有图标"
+
 const val SIDEBAR_PROPERTY = "参数"
-const val OPTION_TABLE_TITLE = "运营固定参数"
-const val TECH_FIX_TABLE_TITLE = "技术固定参数"
 const val SIDEBAR_PACK_APP_CONFIG = "出包配置参数"
-private lateinit var apkReader: ApkReader
+
+//private lateinit var apkReader: ApkReader
 
 
 class ApkToolMain {
@@ -27,18 +30,18 @@ class ApkToolMain {
   fun main() = application {
     val showSideBar by remember { mutableStateOf(true) }
     var selectOption by remember { mutableStateOf(SIDEBAR_PROPERTY) }
+
     //macOS: /Users/zhouyanxia/Downloads/z2022030101_xlcw_webpay_zt_30.1.41_202203071545_l1099.apk
     //windows: E:\xlcw_webpay_hsyw.apk
-    val apkPath by remember { mutableStateOf("/Users/zhouyanxia/Downloads/z2022030101_xlcw_webpay_zt_30.1.41_202203071545_l1099.apk") }
-    var apkMetaInfo by remember { mutableStateOf(emptyMap<String, String>()) }
-    var apkIconData by remember { mutableStateOf(byteArrayOf()) }
+    val apkFilePath =
+    val apkReaderState = rememberApkReaderState("E:\\xlcw_webpay_hsyw.apk")
     val options = mutableListOf(SIDEBAR_PROPERTY, SIDEBAR_PACK_APP_CONFIG)
 
-    LaunchedEffect(apkPath) {
-      apkReader = ApkReader(apkPath)
-      apkIconData = apkReader.readIcons()
-      apkMetaInfo = apkReader.readApkMetaInfo()
-    }
+    /*LaunchedEffect(apkPath) {
+      //apkReader = ApkReader(apkPath)
+      *//*apkIconData = apkReader.readIcon()
+      apkMetaInfo = apkReader.readApkMetaInfo()*//*
+    }*/
 
 
     Window(
@@ -53,7 +56,7 @@ class ApkToolMain {
         ApkToolTheme {
           Row {
             if (showSideBar) {
-              sideBarView(apkIconData, options, apkMetaInfo, Modifier.width(250.dp), onClickOption = {
+              sideBarView(apkReaderState.iconList.value[0], options, apkReaderState.apkMetaData.value, Modifier.width(250.dp), onClickOption = {
                 selectOption = it
               })
               Spacer(modifier = Modifier.width(1.dp).fillMaxHeight())

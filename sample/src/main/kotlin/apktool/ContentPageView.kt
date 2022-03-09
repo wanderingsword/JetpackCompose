@@ -17,7 +17,7 @@ fun optionView(title: String, modifier: Modifier = Modifier) {
     SIDEBAR_PROPERTY -> {
       tableContentView(
           title,
-          mapOf(OPTION_TABLE_TITLE to operFixParam, TECH_FIX_TABLE_TITLE to techFixParam),
+          mapOf(OPTION_TITLE to operFixParam, TECH_FIX_TITLE to techFixParam, ALL_ICON_TITLE to ),
           modifier.fillMaxHeight().padding(10.dp)
       )
     }
@@ -29,7 +29,6 @@ fun optionView(title: String, modifier: Modifier = Modifier) {
       )
     }
   }
-
 }
 
 @Composable
