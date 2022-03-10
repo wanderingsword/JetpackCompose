@@ -33,16 +33,12 @@ class ApkToolMain {
 
     //macOS: /Users/zhouyanxia/Downloads/z2022030101_xlcw_webpay_zt_30.1.41_202203071545_l1099.apk
     //windows: E:\xlcw_webpay_hsyw.apk
-    val apkFilePath =
-    val apkReaderState = rememberApkReaderState("E:\\xlcw_webpay_hsyw.apk")
+    var apkFilePath by remember { mutableStateOf("E:\\xlcw_webpay_hsyw.apk") }
+
+    val apkReaderState by remember(apkFilePath) {
+      mutableStateOf(ApkReaderState(apkFilePath))
+    }
     val options = mutableListOf(SIDEBAR_PROPERTY, SIDEBAR_PACK_APP_CONFIG)
-
-    /*LaunchedEffect(apkPath) {
-      //apkReader = ApkReader(apkPath)
-      *//*apkIconData = apkReader.readIcon()
-      apkMetaInfo = apkReader.readApkMetaInfo()*//*
-    }*/
-
 
     Window(
       onCloseRequest = ::exitApplication,
@@ -56,12 +52,12 @@ class ApkToolMain {
         ApkToolTheme {
           Row {
             if (showSideBar) {
-              sideBarView(apkReaderState.iconList.value[0], options, apkReaderState.apkMetaData.value, Modifier.width(250.dp), onClickOption = {
+              sideBarView(apkReaderState.iconList.values.first(), options, apkReaderState.apkMetaData, Modifier.width(250.dp), onClickOption = {
                 selectOption = it
               })
               Spacer(modifier = Modifier.width(1.dp).fillMaxHeight())
             }
-            optionView(selectOption)
+            optionView(selectOption, apkReaderState.iconList, iconFileName = apkReaderState.iconFileName)
           }
 
         }

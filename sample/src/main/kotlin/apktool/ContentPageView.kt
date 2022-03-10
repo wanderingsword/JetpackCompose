@@ -1,7 +1,10 @@
 package apktool
 
-import Table1
+import ImageContainerWithColumn
+import TableWithColumn
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
@@ -12,40 +15,44 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun optionView(title: String, modifier: Modifier = Modifier) {
-  when(title) {
+fun optionView(title: String, iconList: Map<String, ByteArray>, modifier: Modifier = Modifier, iconFileName: String = "") {
+  when (title) {
     SIDEBAR_PROPERTY -> {
-      tableContentView(
-          title,
-          mapOf(OPTION_TITLE to operFixParam, TECH_FIX_TITLE to techFixParam, ALL_ICON_TITLE to ),
-          modifier.fillMaxHeight().padding(10.dp)
-      )
+      OptionContentViewContainer(
+        title,
+        modifier.fillMaxHeight().padding(10.dp)
+      ) {
+        Spacer(Modifier.height(10.dp))
+        TableWithColumn(4, OPTION_TITLE, operFixParam)
+        Spacer(Modifier.height(10.dp))
+        TableWithColumn(4, TECH_FIX_TITLE, techFixParam)
+        Spacer(Modifier.height(10.dp))
+        ImageContainerWithColumn(2, "$ALL_ICON_TITLE（文件名：${iconFileName}）", iconList)
+      }
     }
     SIDEBAR_PACK_APP_CONFIG -> {
-      tableContentView(
-          title,
-          mapOf(SIDEBAR_PACK_APP_CONFIG to configParam),
-          modifier.fillMaxHeight().padding(10.dp)
-      )
+      OptionContentViewContainer(
+        title,
+        modifier.fillMaxHeight().padding(10.dp)
+      ) {
+        Spacer(Modifier.height(10.dp))
+        TableWithColumn(4, SIDEBAR_PACK_APP_CONFIG, configParam)
+      }
     }
   }
 }
 
 @Composable
-private fun tableContentView(title: String, tableData: Map<String, Map<String, String>>, modifier: Modifier = Modifier) {
-  Column(modifier.fillMaxHeight().padding(10.dp)) {
+private fun OptionContentViewContainer(title: String, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+  Column (modifier.fillMaxHeight().padding(10.dp).verticalScroll(rememberScrollState())) {
     TopAppBar(
-        title = {
-          Text(title, fontSize = 25.sp, fontWeight = FontWeight.Bold)
-        },
-        backgroundColor = ContentBackground,
-        modifier = Modifier.height(50.dp)
+      title = {
+        Text(title, fontSize = 25.sp, fontWeight = FontWeight.Bold)
+      },
+      backgroundColor = ContentBackground,
+      modifier = Modifier.height(50.dp)
     )
 
-    tableData.entries.forEach {
-      Spacer(Modifier.height(10.dp))
-
-      Table1(it.key, 4, it.value)
-    }
+    content()
   }
 }

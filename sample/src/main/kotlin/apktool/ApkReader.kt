@@ -5,6 +5,7 @@ import apktool.xlcw.*
 import net.dongliu.apk.parser.ApkFile
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okio.Path
 import java.util.*
 
 private val tempDir = "tempDir/"
@@ -103,6 +104,8 @@ class ApkReader(apkPath: String) {
     return 0
   }
 
+
+
   //检查微信支付 Activity 是否存在
   private fun weChatActivityExist(): Boolean {
     apkFile.dexClasses.forEach {
@@ -150,10 +153,14 @@ class ApkReader(apkPath: String) {
     return apkFile.allIcons[0].data
   }
 
-  fun readAllIcon(): List<ByteArray> {
-    return mutableListOf<ByteArray>().apply {
+  fun readIconFileName(): String {
+    return apkFile.allIcons[0].path.substringAfterLast("/")
+  }
+
+  fun readAllIcon(): Map<String, ByteArray> {
+    return mutableMapOf<String, ByteArray>().apply {
       apkFile.allIcons.forEach {
-        add(it.data)
+        put(it.path.substringAfterLast(Path.DIRECTORY_SEPARATOR), it.data)
       }
     }
   }
