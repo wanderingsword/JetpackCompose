@@ -35,7 +35,7 @@ class ApkToolMain {
 
     //macOS: /Users/zhouyanxia/Downloads/z2022030101_xlcw_webpay_zt_30.1.41_202203071545_l1099.apk
     //windows: E:\xlcw_webpay_hsyw.apk
-    var apkFilePath by remember { mutableStateOf("/Users/zhouyanxia/Downloads/z2022030101_xlcw_webpay_zt_30.1.41_202203071545_l1099.apk") }
+    var apkFilePath by remember { mutableStateOf("E:\\xlcw_webpay_hsyw.apk") }
 
     val apkReaderState by remember(apkFilePath) {
       mutableStateOf(ApkReaderState(apkFilePath))
@@ -62,7 +62,6 @@ class ApkToolMain {
             }
             optionView(selectOption, apkReaderState.allProperty, apkReaderState.allImageData, iconFileName = apkReaderState.iconFileName)
           }
-
         }
       }
     }
