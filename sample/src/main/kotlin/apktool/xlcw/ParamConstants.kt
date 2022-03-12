@@ -1,13 +1,9 @@
 package apktool.xlcw
 
-//运营固定参数
-val operationFixParam = listOf(
-    "platform",
-    "channel",
-    "minSdkVersion",
-    "targetSdkVersion",
-    "keyStore"
-)
+
+val androidSuffix = mutableListOf("apk", "aab")
+
+val iOSSuffix = mutableListOf("ipa")
 
 
 const val appName = "appName"
@@ -20,9 +16,18 @@ const val configUrl = "ConfigUrl"
 const val channelId = "Xl_Channel_ID"
 const val ConfigUrlSalt = "ConfigUrlSalt"
 
+//运营固定参数
+val operationFixParamKeys = mutableListOf(
+    "platform",
+    "channel",
+    minSdkVersion,
+    targetSdkVersion,
+    "keyStore"
+)
+
 
 //技术固定参数
-val techFixParam = listOf(
+val techFixParamKeys = listOf(
     configUrl,
     "svnVersion",
     "XL_Game_Id",
@@ -54,7 +59,7 @@ val techFixParam = listOf(
  * 14. apk 版本号（versionCode）
  * 15. 二进制版本号（versionName）
  */
-val configParam = listOf(
+val configParamKeys = listOf(
     "需求时间",
     "运营负责人",
     "完成时间",
@@ -64,12 +69,12 @@ val configParam = listOf(
     "备注说明",
     "系统",
     "渠道名称",
-    "游戏名称",
-    "包名",
-    "渠道号",
-    "子渠道号",
-    "apk 版本号",
-    "二进制版本号"
+    "appName-游戏名称",
+    "packageName-包名",
+    "$channelId-渠道号",
+    "CCHId-子渠道号",
+    "versionCode-apk 版本号",
+    "versionName-二进制版本号"
 )
 
 /*

@@ -1,7 +1,7 @@
 package apktool
 
 //运营固定参数
-val operFixParam = mapOf(
+val operFixParam = mutableMapOf(
     "platform" to "",
     "channel" to "Android",
     "minVersion" to "",
@@ -12,7 +12,7 @@ val operFixParam = mapOf(
 const val VersionNum = "VersionNum"
 
 //技术固定参数
-val techFixParam = mapOf(
+val techFixParam = mutableMapOf(
     "configUrl" to "",
     "svnVersion" to "",
     "XL_Game_Id" to "",
@@ -44,7 +44,7 @@ val techFixParam = mapOf(
  * 14. apk 版本号（versionCode）
  * 15. 二进制版本号（versionName）
  */
-val configParam = mapOf(
+val configParam = mutableMapOf(
     "需求时间" to "",
     "运营负责人" to "",
     "完成时间" to "",
@@ -58,7 +58,7 @@ val configParam = mapOf(
     "包名" to "",
     "渠道号" to "",
     "子渠道号" to "",
-    "apk 版本号" to "",
+    "apk版本号" to "",
     "二进制版本号" to ""
 )
 

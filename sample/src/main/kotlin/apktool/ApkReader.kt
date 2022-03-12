@@ -1,6 +1,5 @@
 package apktool
 
-import androidx.compose.runtime.mutableStateOf
 import apktool.xlcw.*
 import net.dongliu.apk.parser.ApkFile
 import okhttp3.OkHttpClient
@@ -14,10 +13,10 @@ private const val versionBytePath = "assets/AssetBundles/Android/version.bytes"
 private val androidManifestPath = "AndroidManifest.xml"
 
 //Loading 图位置
-private val loadingImagePath = "assets/First_Loading.png"
+const val loadingImagePath = "assets/Frist_Loading.png"
 
 //闪屏图位置
-private val splashImagePath = "res/drawable/unity_static_splash.png"
+const val splashImagePath = "res/drawable/unity_static_splash.png"
 
 class ApkReader(apkPath: String) {
   private val apkFile: ApkFile = ApkFile(apkPath)
@@ -25,11 +24,79 @@ class ApkReader(apkPath: String) {
 
   init {
     parseApk()
+    checkPlatform(apkPath)
+    checkChannel()
+  }
+
+
+  fun getApkProperts(): Map<String, String> {
+    return paraMap
+  }
+
+  //读取图标
+  fun readIcon(): ByteArray {
+    apkFile.allIcons.forEach { iconFace ->
+      println("iconPath: ${iconFace.path}")
+    }
+    return apkFile.allIcons[0].data
+  }
+
+  fun readIconFileName(): String {
+    return apkFile.allIcons[0].path.substringAfterLast(Path.DIRECTORY_SEPARATOR)
+  }
+
+  fun readAllImage(): Map<String, ByteArray> {
+    return mutableMapOf<String, ByteArray>().apply {
+      apkFile.allIcons.forEach {
+        put(it.path, it.data)
+      }
+      put(splashImagePath, apkFile.getFileData(splashImagePath) ?: ByteArray(0))
+      put(loadingImagePath, apkFile.getFileData(loadingImagePath) ?: ByteArray(0))
+    }
   }
 
   private fun parseApk() {
     paraMap.putAll(readPlatformConfig())
     paraMap.putAll(readVersionBytes())
+    paraMap.putAll(readApkMetaInfo())
+
+    operFixParam.forEach { entry ->
+      operFixParam[entry.key] = paraMap[entry.key].let { it ?: "" }
+    }
+
+    techFixParam.forEach { entry ->
+      techFixParam[entry.key] = paraMap[entry.key].let { it ?: "" }
+    }
+
+    readCertificationMd5()
+  }
+
+  private fun checkChannel() {
+    if (paraMap.containsKey("ChannelNum")) {
+      paraMap["channel"] = paraMap["ChannelNum"] ?: ""
+    }
+  }
+
+  private fun checkPlatform(apkPath: String) {
+    println("OsType: ${paraMap["OsType"]}")
+    if (paraMap.containsKey("OsType")) {
+      paraMap["platform"] = paraMap["OsType"] ?: platformFromFileSuffix(apkPath)
+    }
+  }
+
+  private fun platformFromFileSuffix(apkPath: String): String {
+    for (suffix in androidSuffix) {
+      if (apkPath.endsWith(suffix)) {
+        return "Android"
+      }
+    }
+
+    for (suffix in iOSSuffix) {
+      if (apkPath.endsWith(suffix)) {
+        return "iOS"
+      }
+    }
+    return ""
   }
 
   //读取 assets/platform_config.properties 文件
@@ -49,9 +116,9 @@ class ApkReader(apkPath: String) {
         val equalIndex = lineWithoutSpace.indexOf("=")
         val key = lineWithoutSpace.substring(0 until equalIndex)
         val value =
-          if (equalIndex == lineWithoutSpace.length - 1) "" else lineWithoutSpace.substring(
-            equalIndex + 1 until lineWithoutSpace.length
-          )
+            if (equalIndex == lineWithoutSpace.length - 1) "" else lineWithoutSpace.substring(
+                equalIndex + 1 until lineWithoutSpace.length
+            )
         put(key, value)
       }
       println("----------------------- end read $platformConfigPath --------------------------")
@@ -69,28 +136,29 @@ class ApkReader(apkPath: String) {
 
     return mutableMapOf<String, String>().apply {
       stringContent
-        .replace("\"", "")
-        .split(",")
-        .forEach {
-          val propertyString = it.split(":")
+          .substring(1, stringContent.length - 1)
+          .replace("\"", "")
+          .split(",")
+          .forEach {
+            val propertyString = it.split(":")
 
-          if (propertyString.size == 2)
+            if (propertyString.size == 2)
             put(propertyString[0], propertyString[1])
-        }
+          }
 
       println("---------------- end read $versionBytePath ------------------")
     }
   }
 
   //读取 apk 版本相关信息
-  fun readApkMetaInfo(): Map<String, String> {
+  private fun readApkMetaInfo(): Map<String, String> {
     return mapOf(
-      appName to apkFile.apkMeta.name,
-      packageName to apkFile.apkMeta.packageName,
-      versionName to apkFile.apkMeta.versionName,
-      versionCode to apkFile.apkMeta.versionCode.toString(),
-      minSdkVersion to apkFile.apkMeta.minSdkVersion,
-      targetSdkVersion to apkFile.apkMeta.targetSdkVersion
+        appName to apkFile.apkMeta.name,
+        packageName to apkFile.apkMeta.packageName,
+        versionName to apkFile.apkMeta.versionName,
+        versionCode to apkFile.apkMeta.versionCode.toString(),
+        minSdkVersion to apkFile.apkMeta.minSdkVersion,
+        targetSdkVersion to apkFile.apkMeta.targetSdkVersion
     )
   }
 
@@ -104,14 +172,12 @@ class ApkReader(apkPath: String) {
     return 0
   }
 
-
-
   //检查微信支付 Activity 是否存在
   private fun weChatActivityExist(): Boolean {
     apkFile.dexClasses.forEach {
       println("classType: ${it.classType}, packageName: ${it.packageName}")
       if (it.classType.substring(1, it.classType.length - 1)
-          .replace("/", ".") == "${paraMap[packageName]}.wxapi.WXPayEntryActivity"
+              .replace("/", ".") == "${paraMap[packageName]}.wxapi.WXPayEntryActivity"
       ) return true
     }
     return false
@@ -121,7 +187,7 @@ class ApkReader(apkPath: String) {
   fun checkConfigUrl(paraMap: Map<String, String>) {
     val configUrl = paraMap[configUrl]
     val paramString: String?
-    
+
     val params = TreeMap<String, String>()
     params["bin_ver"] = paraMap[versionName]!!
     params["bin_name"] = paraMap[packageName]!!
@@ -138,62 +204,44 @@ class ApkReader(apkPath: String) {
 
     val client = OkHttpClient()
     val request = Request.Builder()
-      .url("${configUrl}?${paramString}")
-      .build()
+        .url("${configUrl}?${paramString}")
+        .build()
 
     showAlert("request url: ${request.url}")
     showAlert("response: ${client.newCall(request).execute().body?.string()}")
   }
 
-  //读取图标
-  fun readIcon(): ByteArray {
-    apkFile.allIcons.forEach { iconFace ->
-      println("iconPath: ${iconFace.path}")
-    }
-    return apkFile.allIcons[0].data
-  }
-
-  fun readIconFileName(): String {
-    return apkFile.allIcons[0].path.substringAfterLast("/")
-  }
-
-  fun readAllIcon(): Map<String, ByteArray> {
-    return mutableMapOf<String, ByteArray>().apply {
-      apkFile.allIcons.forEach {
-        put(it.path.substringAfterLast(Path.DIRECTORY_SEPARATOR), it.data)
-      }
-    }
-  }
-
-  private fun readCertificationMd5() {
+  private fun readCertificationMd5(): String {
+    val sb: StringBuilder = StringBuilder()
     apkFile.apkSingers.forEach { signer ->
       signer.certificateMetas.forEach { certificateMeta ->
         println(
-          "v1 signer - ${signer.path} ---> " +
-              "\n\t signAlgorithm: ${certificateMeta.signAlgorithm}" +
-              "\n\t signAlgorithmOID: ${certificateMeta.signAlgorithmOID}" +
-              "\n\t startDate: ${certificateMeta.startDate}" +
-              "\n\t endDate ${certificateMeta.endDate}" +
-              "\n\t data ${certificateMeta.data}" +
-              "\n\t certBase64Md5: ${certificateMeta.certBase64Md5}" +
-              "\n\t certMd5: ${certificateMeta.certMd5}"
+            "v1 signer - ${signer.path} ---> " +
+                "\n\t signAlgorithm: ${certificateMeta.signAlgorithm}" +
+                "\n\t signAlgorithmOID: ${certificateMeta.signAlgorithmOID}" +
+                "\n\t startDate: ${certificateMeta.startDate}" +
+                "\n\t endDate ${certificateMeta.endDate}" +
+                "\n\t data ${certificateMeta.data}" +
+                "\n\t certBase64Md5: ${certificateMeta.certBase64Md5}" +
+                "\n\t certMd5: ${certificateMeta.certMd5}"
         )
+        sb.append("${signer.path} : ${certificateMeta.certMd5}")
       }
     }
-
-    apkFile.apkV2Singers.forEach { signer ->
+    return sb.toString()
+    /*apkFile.apkV2Singers?.forEach { signer ->
       signer.certificateMetas.forEach { certificateMeta ->
         println(
-          "apkV2Signer - certificateMeta: " +
-              "\n\t signAlgorithm: ${certificateMeta.signAlgorithm}" +
-              "\n\t signAlgorithmOID: ${certificateMeta.signAlgorithmOID}" +
-              "\n\t startDate: ${certificateMeta.startDate}" +
-              "\n\t endDate ${certificateMeta.endDate}" +
-              "\n\t data ${certificateMeta.data}" +
-              "\n\t certBase64Md5: ${certificateMeta.certBase64Md5}" +
-              "\n\t certMd5: ${certificateMeta.certMd5}"
+            "apkV2Signer - certificateMeta: " +
+                "\n\t signAlgorithm: ${certificateMeta.signAlgorithm}" +
+                "\n\t signAlgorithmOID: ${certificateMeta.signAlgorithmOID}" +
+                "\n\t startDate: ${certificateMeta.startDate}" +
+                "\n\t endDate ${certificateMeta.endDate}" +
+                "\n\t data ${certificateMeta.data}" +
+                "\n\t certBase64Md5: ${certificateMeta.certBase64Md5}" +
+                "\n\t certMd5: ${certificateMeta.certMd5}"
         )
       }
-    }
+    }*/
   }
 }

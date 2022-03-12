@@ -1,21 +1,32 @@
 package apktool
 
 internal class ApkReaderState {
-  var iconList = emptyMap<String, ByteArray>()
-  var apkMetaData = emptyMap<String, String>()
+
+  var allImageData = emptyMap<String, ByteArray>()
   var iconFileName = ""
+  var allProperty = emptyMap<String, String>()
+
+  var splashImage: ByteArray? = null
+  var loadingImage: ByteArray? = null
+
 
   private var apkFilePath = ""
     set(value) {
       field = value
       val apkReader = ApkReader(value)
-      iconList = mutableMapOf<String, ByteArray>().apply {
+
+      allImageData = mutableMapOf<String, ByteArray>().apply {
         iconFileName = apkReader.readIconFileName()
-        apkReader.readAllIcon().forEach {
-          put(it.key.substring(it.key.indexOf("res/"), it.key.lastIndexOf("/")), it.value)
+        apkReader.readAllImage().forEach {
+          if(it.key.endsWith(iconFileName)) {
+            put(it.key.substringAfter("res/"), it.value)
+          } else {
+            put(it.key, it.value)
+          }
         }
       }
-      apkMetaData = apkReader.readApkMetaInfo()
+
+      allProperty = apkReader.getApkProperts()
     }
 
   constructor(apkFilePath: String) {

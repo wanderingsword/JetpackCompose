@@ -1,7 +1,7 @@
 package apktool
 
-import ImageContainerWithColumn
-import TableWithColumn
+import imageContainerWithColumn
+import tableWithColumn
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -12,39 +12,49 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import apktool.xlcw.operationFixParamKeys
 
 
 @Composable
-fun optionView(title: String, iconList: Map<String, ByteArray>, modifier: Modifier = Modifier, iconFileName: String = "") {
+fun optionView(title: String, datas: Map<String, String>, iconList: Map<String, ByteArray>, modifier: Modifier = Modifier, iconFileName: String = "") {
   when (title) {
     SIDEBAR_PROPERTY -> {
-      OptionContentViewContainer(
+      optionContentViewContainer(
         title,
         modifier.fillMaxHeight().padding(10.dp)
       ) {
-        Spacer(Modifier.height(10.dp))
-        TableWithColumn(4, OPTION_TITLE, operFixParam)
-        Spacer(Modifier.height(10.dp))
-        TableWithColumn(4, TECH_FIX_TITLE, techFixParam)
-        Spacer(Modifier.height(10.dp))
-        ImageContainerWithColumn(2, "$ALL_ICON_TITLE（文件名：${iconFileName}）", iconList)
+        Spacer(Modifier.height(15.dp))
+        tableWithColumn(4, OPTION_TITLE, datas, operationFixParamKeys)
+        Spacer(Modifier.height(15.dp))
+        tableWithColumn(4, TECH_FIX_TITLE, datas, apktool.xlcw.techFixParamKeys)
+        Spacer(Modifier.height(15.dp))
+        imageContainerWithColumn(3, "$ALL_ICON_TITLE（文件名：${iconFileName}）", iconList.filter { entry ->
+          entry.key.endsWith(iconFileName) })
+        Spacer(Modifier.height(15.dp))
+        imageContainerWithColumn(1, "闪屏图（文件名：${splashImagePath}）", iconList.filter { entry ->
+          entry.key.endsWith(splashImagePath)
+        }, 400.dp)
+        Spacer(Modifier.height(15.dp))
+        imageContainerWithColumn(1, "loading 图（文件名：${loadingImagePath}）", iconList.filter { entry ->
+          entry.key.endsWith(loadingImagePath)
+        }, 400.dp)
       }
     }
     SIDEBAR_PACK_APP_CONFIG -> {
-      OptionContentViewContainer(
+      optionContentViewContainer(
         title,
         modifier.fillMaxHeight().padding(10.dp)
       ) {
         Spacer(Modifier.height(10.dp))
-        TableWithColumn(4, SIDEBAR_PACK_APP_CONFIG, configParam)
+        tableWithColumn(4, SIDEBAR_PACK_APP_CONFIG, datas, apktool.xlcw.configParamKeys)
       }
     }
   }
 }
 
 @Composable
-private fun OptionContentViewContainer(title: String, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-  Column (modifier.fillMaxHeight().padding(10.dp).verticalScroll(rememberScrollState())) {
+private fun optionContentViewContainer(title: String, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+  Column (modifier.wrapContentWidth().padding(10.dp).verticalScroll(rememberScrollState())) {
     TopAppBar(
       title = {
         Text(title, fontSize = 25.sp, fontWeight = FontWeight.Bold)

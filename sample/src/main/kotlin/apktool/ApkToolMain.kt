@@ -6,9 +6,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
 import java.awt.datatransfer.DataFlavor
 import java.awt.dnd.DnDConstants
 import java.awt.dnd.DropTarget
@@ -33,7 +35,7 @@ class ApkToolMain {
 
     //macOS: /Users/zhouyanxia/Downloads/z2022030101_xlcw_webpay_zt_30.1.41_202203071545_l1099.apk
     //windows: E:\xlcw_webpay_hsyw.apk
-    var apkFilePath by remember { mutableStateOf("E:\\xlcw_webpay_hsyw.apk") }
+    var apkFilePath by remember { mutableStateOf("/Users/zhouyanxia/Downloads/z2022030101_xlcw_webpay_zt_30.1.41_202203071545_l1099.apk") }
 
     val apkReaderState by remember(apkFilePath) {
       mutableStateOf(ApkReaderState(apkFilePath))
@@ -41,23 +43,24 @@ class ApkToolMain {
     val options = mutableListOf(SIDEBAR_PROPERTY, SIDEBAR_PACK_APP_CONFIG)
 
     Window(
-      onCloseRequest = ::exitApplication,
-      icon = apkToolsIcon(),
-      title = "apktools"
+        state = rememberWindowState(size = DpSize(1200.dp, 800.dp)),
+        onCloseRequest = ::exitApplication,
+        icon = apkToolsIcon(),
+        title = "apktools"
     ) {
 
       this.window.contentPane.dropTarget = drogTarget
 
       Surface(Modifier.fillMaxSize()) {
         ApkToolTheme {
-          Row {
+          Row(modifier = Modifier.wrapContentWidth()) {
             if (showSideBar) {
-              sideBarView(apkReaderState.iconList.values.first(), options, apkReaderState.apkMetaData, Modifier.width(250.dp), onClickOption = {
+              sideBarView(apkReaderState.allImageData.values.first(), options, apkReaderState.allProperty, Modifier.width(250.dp), onClickOption = {
                 selectOption = it
               })
               Spacer(modifier = Modifier.width(1.dp).fillMaxHeight())
             }
-            optionView(selectOption, apkReaderState.iconList, iconFileName = apkReaderState.iconFileName)
+            optionView(selectOption, apkReaderState.allProperty, apkReaderState.allImageData, iconFileName = apkReaderState.iconFileName)
           }
 
         }
