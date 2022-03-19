@@ -1,11 +1,15 @@
 package apktool
 
 import apktool.xlcw.*
+import dex.parse.DexData
 import net.dongliu.apk.parser.ApkFile
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okio.Path
+import java.io.File
+import java.nio.ByteBuffer
 import java.util.*
+import kotlin.collections.ArrayList
 
 private val tempDir = "tempDir/"
 private const val platformConfigPath = "assets/platform_config.properties"
@@ -19,17 +23,59 @@ const val loadingImagePath = "assets/Frist_Loading.png"
 const val splashImagePath = "res/drawable/unity_static_splash.png"
 
 class ApkReader(apkPath: String) {
-  private val apkFile: ApkFile = ApkFile(apkPath)
+  private lateinit var apkFile: ApkFile
   private val paraMap = mutableMapOf<String, String>()
 
   init {
+    initApkInfo(apkPath)
+  }
+
+  private fun initApkInfo(apkPath: String) {
+    val file = File(apkPath)
+    if (!file.exists()) {
+      return
+    }
+    apkFile = ApkFile(file)
     parseApk()
     checkPlatform(apkPath)
     checkChannel()
+    paraMap.putAll(checkConfigUrl(paraMap))
+    paraMap[weChatPayActivityKey] = checkWeChatActivity()
+
+    val dexDatas = parseDexFiles()
+    for (i in 0 until dexDatas.size) {
+      val dex = dexDatas[i]
+      val k = "classes$i"
+      paraMap[k] = dex.readMethodRefsCount().toString()
+      if (!dexMethodCountKeys.contains(k)) {
+        dexMethodCountKeys.add(k)
+      }
+
+      if (!paraMap.containsKey(svnVersionCodeKey) || paraMap[svnVersionCodeKey] == "" ) {
+        paraMap[svnVersionCodeKey] = dex.readSvnVersionCode()
+      }
+    }
+  }
+
+  private fun parseDexFiles(): ArrayList<DexData> {
+    val result = ArrayList<DexData>().apply {
+      add(DexData(ByteBuffer.wrap(apkFile.getFileData("classes.dex"))))
+    }
+
+    var secondaryDexData: ByteArray? = null
+    for (i in 1..30) {
+      secondaryDexData = apkFile.getFileData("classes$i.dex")
+      if (secondaryDexData == null) {
+        break
+      }
+      result.add(DexData(ByteBuffer.wrap(secondaryDexData)))
+    }
+    return result
   }
 
 
   fun getApkProperts(): Map<String, String> {
+
     return paraMap
   }
 
@@ -59,6 +105,7 @@ class ApkReader(apkPath: String) {
     paraMap.putAll(readPlatformConfig())
     paraMap.putAll(readVersionBytes())
     paraMap.putAll(readApkMetaInfo())
+    paraMap.putAll(checkConfigUrl(paraMap))
 
     operFixParam.forEach { entry ->
       operFixParam[entry.key] = paraMap[entry.key].let { it ?: "" }
@@ -68,7 +115,7 @@ class ApkReader(apkPath: String) {
       techFixParam[entry.key] = paraMap[entry.key].let { it ?: "" }
     }
 
-    readCertificationMd5()
+    paraMap[apkSignKey] = readCertificationMd5()
   }
 
   private fun checkChannel() {
@@ -143,7 +190,7 @@ class ApkReader(apkPath: String) {
             val propertyString = it.split(":")
 
             if (propertyString.size == 2)
-            put(propertyString[0], propertyString[1])
+              put(propertyString[0], propertyString[1])
           }
 
       println("---------------- end read $versionBytePath ------------------")
@@ -169,22 +216,29 @@ class ApkReader(apkPath: String) {
 
   //检查 dex 方法数
   private fun readMethodRefs(): Int {
+    apkFile.dexClasses
     return 0
   }
 
   //检查微信支付 Activity 是否存在
-  private fun weChatActivityExist(): Boolean {
+  private fun checkWeChatActivity(): String {
+    val sb = StringBuilder("")
     apkFile.dexClasses.forEach {
-      println("classType: ${it.classType}, packageName: ${it.packageName}")
-      if (it.classType.substring(1, it.classType.length - 1)
-              .replace("/", ".") == "${paraMap[packageName]}.wxapi.WXPayEntryActivity"
-      ) return true
+//      println("classType: ${it.classType}, packageName: ${it.packageName}")
+      if (it.classType.substring(1, it.classType.length - 1).endsWith("/WXPayEntryActivity")) {
+        val weChatActivityPackage = it.classType.substring(1, it.classType.length - 1).replace("/", ".")
+        sb.append(weChatActivityPackage)
+        if (weChatActivityPackage == "${paraMap[packageName]}.wxapi.WXPayEntryActivity") {
+          sb.append("（微信支付已配置）")
+        }
+        sb.append("\n")
+      }
     }
-    return false
+    return sb.toString()
   }
 
   //检查统一配置地址是否有效
-  fun checkConfigUrl(paraMap: Map<String, String>) {
+  private fun checkConfigUrl(paraMap: Map<String, String>): Map<String, String> {
     val configUrl = paraMap[configUrl]
     val paramString: String?
 
@@ -192,23 +246,26 @@ class ApkReader(apkPath: String) {
     params["bin_ver"] = paraMap[versionName]!!
     params["bin_name"] = paraMap[packageName]!!
     params["uuid"] = "00000000-0000-0000-0000-000000000000"
-    if (!paraMap.containsKey("configUrlSalt") || paraMap["configUrlSalt"]?.isEmpty() == true) {
+    if (!paraMap.containsKey(ConfigUrlSalt) || paraMap[ConfigUrlSalt]?.isEmpty() == true) {
       params["channel"] = paraMap[channelId]!!
       paramString = signParamWithSalt(params, "")
     } else {
       params["channel_id"] = paraMap[channelId]!!
       params["timestamp"] = (System.currentTimeMillis() / 100).toString()
-      paramString = signParamWithSalt(params, paraMap["configUrlSalt"]!!)
+      paramString = signParamWithSalt(params, paraMap[ConfigUrlSalt]!!)
     }
-
 
     val client = OkHttpClient()
     val request = Request.Builder()
         .url("${configUrl}?${paramString}")
         .build()
 
-    showAlert("request url: ${request.url}")
-    showAlert("response: ${client.newCall(request).execute().body?.string()}")
+    showAlert("configUrl: ${request.url}")
+    showAlert("configUrl_resq: ${client.newCall(request).execute().body?.string()}")
+    return mapOf(
+        ConfigUrlKey to "${request.url}",
+        ConfigUrlResqKey to "${client.newCall(request).execute().body?.string()}"
+    )
   }
 
   private fun readCertificationMd5(): String {

@@ -59,7 +59,7 @@ fun <T> Table(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Table1(title: String, columnCount: Int, data: Map<String, Any>) {
+fun table1(title: String, columnCount: Int, data: Map<String, Any>) {
   Text(
       text = title,
       modifier = Modifier.fillMaxWidth().background(ContentBackground).padding(PaddingValues(5.dp)),
@@ -75,22 +75,21 @@ fun Table1(title: String, columnCount: Int, data: Map<String, Any>) {
   ) {
     data.forEach { entry ->
       item {
-        TableItem(entry.key, true)
+        tableItem(entry.key, true)
       }
       item {
-        TableItem(entry.value, false)
+        tableItem(entry.value, false)
       }
     }
   }
 }
 
 @Composable
-private fun TableItem(content: Any, isTitle: Boolean, modifier: Modifier = Modifier) {
+private fun tableItem(content: Any, isTitle: Boolean, modifier: Modifier = Modifier) {
   when (content) {
     is String -> {
       Text(
           text = content,
-          maxLines = 1,
           overflow = TextOverflow.Ellipsis,
           color = if (isTitle) Color.Black else TextColor,
           modifier = modifier.border(BorderStroke(1.dp, BorderColor))
@@ -151,13 +150,13 @@ fun tablePerEntryTwoCol(columnCount: Int, data: Map<String, String>, keys: List<
 
   println("data size ${data.size}, rowCount: $rowCount, entryEachRow: $entryEachRow")
   for (i in 0 until rowCount) {
-    Row(modifier = Modifier.wrapContentSize()) {
+    Row(modifier = Modifier.wrapContentWidth().height(IntrinsicSize.Max)) {
       for (j in 0 until entryEachRow) {
         val index = i * entryEachRow + j
         if (index < keyList.size) {
           Row(modifier = Modifier.weight(1f)) {
-            TableItem(keyList[index], true, modifier = Modifier.wrapContentWidth())
-            data[keyList[index]]?.let { TableItem(it, false, modifier = Modifier.fillMaxWidth()) }
+            tableItem(keyList[index], true, modifier = Modifier.wrapContentWidth().fillMaxHeight().align(Alignment.CenterVertically))
+            data[keyList[index]]?.let { tableItem(it, false, modifier = Modifier.fillMaxSize()) }
           }
         } else {
           Spacer(Modifier.weight(1f, fill = true))
@@ -206,7 +205,6 @@ fun imageItem(description: String, imageData: ByteArray, modifier: Modifier = Mo
     )
   }
 }
-
 
 @Preview
 @Composable

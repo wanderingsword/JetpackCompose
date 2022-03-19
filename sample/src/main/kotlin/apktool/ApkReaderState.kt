@@ -1,20 +1,23 @@
 package apktool
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+
 internal class ApkReaderState {
 
-  var allImageData = emptyMap<String, ByteArray>()
-  var iconFileName = ""
-  var allProperty = emptyMap<String, String>()
+  var allImageData by mutableStateOf(emptyMap<String, ByteArray>())
+  var iconFileName by mutableStateOf("")
+  var allProperty by mutableStateOf(emptyMap<String, String>())
 
-  var splashImage: ByteArray? = null
-  var loadingImage: ByteArray? = null
+  var splashImage by mutableStateOf<ByteArray?>(null)
+  var loadingImageby by mutableStateOf<ByteArray?>(null)
 
 
-  private var apkFilePath = ""
+  var apkFilePath = ""
     set(value) {
       field = value
       val apkReader = ApkReader(value)
-
       allImageData = mutableMapOf<String, ByteArray>().apply {
         iconFileName = apkReader.readIconFileName()
         apkReader.readAllImage().forEach {
@@ -28,6 +31,8 @@ internal class ApkReaderState {
 
       allProperty = apkReader.getApkProperts()
     }
+
+  constructor()
 
   constructor(apkFilePath: String) {
     this.apkFilePath = apkFilePath

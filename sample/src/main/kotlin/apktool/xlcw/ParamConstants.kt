@@ -1,5 +1,6 @@
 package apktool.xlcw
 
+const val DEBUG = false
 
 val androidSuffix = mutableListOf("apk", "aab")
 
@@ -13,8 +14,11 @@ const val versionCode = "versionCode"
 const val minSdkVersion = "minSdkVersion"
 const val targetSdkVersion = "targetSdkVersion"
 const val configUrl = "ConfigUrl"
-const val channelId = "Xl_Channel_ID"
+const val channelId = "Xl_Channel"
 const val ConfigUrlSalt = "ConfigUrlSalt"
+const val apkSignKey = "keyStore"
+const val svnVersionCodeClass = "Lcom/xlcwnet/sdk/dock/compat/BuildConfig;"
+const val svnVersionCodeKey = "svnVersion"
 
 //运营固定参数
 val operationFixParamKeys = mutableListOf(
@@ -22,14 +26,16 @@ val operationFixParamKeys = mutableListOf(
     "channel",
     minSdkVersion,
     targetSdkVersion,
-    "keyStore"
+    apkSignKey
 )
 
+val dexMethodCountKeys = mutableListOf<String>()
 
+const val weChatPayActivityKey = "微信支付 Activity："
 //技术固定参数
-val techFixParamKeys = listOf(
+val techFixParamKeys = mutableListOf(
     configUrl,
-    "svnVersion",
+    svnVersionCodeKey,
     "XL_Game_Id",
     "XL_DATA_URL",
     "XL_DATA_AREA",
@@ -38,7 +44,8 @@ val techFixParamKeys = listOf(
     "XL_SDK_SHOW_SPLASH",
     "XL_SDK_SIGN",
     "SDKType",
-    "VersionNum"
+    "VersionNum",
+    weChatPayActivityKey
 )
 
 /**
@@ -59,7 +66,7 @@ val techFixParamKeys = listOf(
  * 14. apk 版本号（versionCode）
  * 15. 二进制版本号（versionName）
  */
-val configParamKeys = listOf(
+val configParamKeys = mutableListOf(
     "需求时间",
     "运营负责人",
     "完成时间",
@@ -85,7 +92,7 @@ val configParamKeys = listOf(
     ReYun_App_Id：热云 appid
     XL_BUGLY_APPID：bugly appid
  */
-val sdkParam = listOf(
+val sdkParam = mutableListOf(
     "AppId",
     "AppKey",
     "TouTiao_App_Id",
@@ -93,3 +100,13 @@ val sdkParam = listOf(
     "ReYun_App_Id",
     "XL_BUGLY_APPID"
 )
+
+
+const val ConfigUrlCheckTitle = "统一配置地址检查"
+const val ConfigUrlKey = "configUrl"
+const val ConfigUrlResqKey = "configUrl_resq"
+val configUrlCheck = listOf(
+    ConfigUrlKey,
+    ConfigUrlResqKey
+)
+const val DexMethodCountTitle = "dex 方法数"

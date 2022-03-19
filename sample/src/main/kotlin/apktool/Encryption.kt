@@ -37,7 +37,7 @@ fun ByteArray.toHexString(): String {
   println()
   val out = CharArray((size shl 1))
 
-  for (i in 0 until size) {
+  for (i in indices) {
     (this[i] and (0xff).toByte()).toInt().let {
       println("${this[i]} -- $i -- $it")
       out[i * 2] = DIGITS[it ushr 4]
@@ -50,10 +50,10 @@ fun ByteArray.toHexString(): String {
 
 fun ByteArray.toHexString1(): String {
   val hexString = StringBuilder()
-  forEach { 
-    var c = Integer.toHexString(it.toInt())
-    //println("byte -> hexString: $it -> $c")
-    if (it < 0x10) {
+  forEach {
+    var c = Integer.toHexString(it.toInt() and (0xff))
+    println("byte -> hexString: $it -> $c")
+    if(c.length == 1) {
       c = "0$c"
     }
     hexString.append(c)
