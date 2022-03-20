@@ -31,6 +31,7 @@ const val SIDEBAR_PACK_APP_CONFIG = "出包配置参数"
 
 
 class ApkToolMain {
+  var apkPath = mutableStateOf("\\\\10.19.8.64\\迅龙创威资源共享盘\\迅龙创威\\BEST2项目组\\best2包体备份\\B2国服版本包备份\\国服出包备份\\0316出包\\星辉\\B2_ope_China2_Release_IL2CPP_xinghui_3.1.43_202203160625_xinghui_hsjg_3.1.43_202203161228_b1024.apk")
 
   fun main() = application {
     val showSideBar by remember { mutableStateOf(true) }
@@ -38,7 +39,7 @@ class ApkToolMain {
 
     //macOS: /Users/zhouyanxia/Downloads/z2022030101_xlcw_webpay_zt_30.1.41_202203071545_l1099.apk
     //windows: E:\xlcw_webpay_hsyw.apk
-    var apkFilePath by remember { mutableStateOf("/Users/zhouyanxia/Downloads/z2022030101_xlcw_webpay_zt_30.1.41_202203071545_l1099.apk") }
+    var apkFilePath by remember { apkPath }
     val apkReaderState = ApkReaderState()
     val options = mutableListOf(SIDEBAR_PROPERTY, SIDEBAR_PACK_APP_CONFIG)
 
@@ -85,6 +86,13 @@ class ApkToolMain {
     override fun drop(dtde: DropTargetDropEvent) {
       dtde.acceptDrop(DnDConstants.ACTION_REFERENCE)
       val droppedFiles = dtde.transferable.getTransferData(DataFlavor.javaFileListFlavor) as List<*>
+      for(i in 0 until droppedFiles.size) {
+        val filePath = (droppedFiles[i] as File).absolutePath
+        println(filePath)
+        if(filePath.endsWith("apk")) {
+          apkPath.value = filePath
+        }
+      }
       droppedFiles.forEach { file ->
         println((file as File).absolutePath)
       }
