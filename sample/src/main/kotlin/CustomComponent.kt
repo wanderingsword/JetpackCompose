@@ -109,13 +109,15 @@ private fun tableItem(content: Any, isTitle: Boolean, modifier: Modifier = Modif
 @Composable
 fun tableWithColumn(columnCount: Int, title: String, data: Map<String, String>, keys: List<String> = emptyList()) {
   Column {
-    Text(
-        text = title,
-        modifier = Modifier.fillMaxWidth().background(ContentBackground).padding(PaddingValues(5.dp)),
-        color = TABLE_TITLE_COLOR,
-        fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Bold
-    )
+    if(title != "") {
+      Text(
+          text = title,
+          modifier = Modifier.fillMaxWidth().background(ContentBackground).padding(PaddingValues(5.dp)),
+          color = TABLE_TITLE_COLOR,
+          fontFamily = FontFamily.SansSerif,
+          fontWeight = FontWeight.Bold
+      )
+    }
 
     Spacer(Modifier.height(5.dp))
 

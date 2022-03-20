@@ -1,5 +1,6 @@
 package apktool
 
+import apktool.xlcw.DEBUG
 import java.lang.StringBuilder
 import java.security.MessageDigest
 import java.util.*
@@ -52,7 +53,7 @@ fun ByteArray.toHexString1(): String {
   val hexString = StringBuilder()
   forEach {
     var c = Integer.toHexString(it.toInt() and (0xff))
-    println("byte -> hexString: $it -> $c")
+    if(DEBUG) println("byte -> hexString: $it -> $c")
     if(c.length == 1) {
       c = "0$c"
     }

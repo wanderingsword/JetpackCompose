@@ -25,6 +25,7 @@ const val ALL_ICON_TITLE = "所有图标"
 
 const val SIDEBAR_PROPERTY = "参数"
 const val SIDEBAR_PACK_APP_CONFIG = "出包配置参数"
+const val SIDEBAR_ALL_PROPERTY = "所有属性"
 //const val
 
 //private lateinit var apkReader: ApkReader
@@ -37,10 +38,13 @@ class ApkToolMain {
     var selectOption by remember { mutableStateOf(SIDEBAR_PROPERTY) }
 
     //macOS: /Users/zhouyanxia/Downloads/z2022030101_xlcw_webpay_zt_30.1.41_202203071545_l1099.apk
+    ///Users/zhouyanxia/Downloads/B2_ope_China2_Release_IL2CPP_xinghui_3.1.43_202203160625_xinghui_hsjg_3.1.43_202203161228_b1024.apk
+    ///Users/zhouyanxia/Downloads/B2_ope_China2_Release_IL2CPP_xlcw_3.1.42_202203160204_xlcw_clksdxhsj1098_3.1.43_202203161219_l1098.apk
+    ///Users/zhouyanxia/Downloads/B2_ope_China2_Release_IL2CPP_xlcw_3.1.42_202203160204_xlcw_webpay_sgyyl_3.1.43_202203191029_l1096.apk
     //windows: E:\xlcw_webpay_hsyw.apk
-    var apkFilePath by remember { mutableStateOf("/Users/zhouyanxia/Downloads/z2022030101_xlcw_webpay_zt_30.1.41_202203071545_l1099.apk") }
+    var apkFilePath by remember { mutableStateOf("/Users/zhouyanxia/Downloads/B2_ope_China2_Release_IL2CPP_xinghui_3.1.43_202203160625_xinghui_hsjg_3.1.43_202203161228_b1024.apk") }
     val apkReaderState = ApkReaderState()
-    val options = mutableListOf(SIDEBAR_PROPERTY, SIDEBAR_PACK_APP_CONFIG)
+    val options = mutableListOf(SIDEBAR_PROPERTY, SIDEBAR_PACK_APP_CONFIG, SIDEBAR_ALL_PROPERTY)
 
     Window(
         state = rememberWindowState(size = DpSize(1200.dp, 800.dp)),

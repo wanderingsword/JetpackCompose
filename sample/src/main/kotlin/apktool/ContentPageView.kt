@@ -71,6 +71,14 @@ fun contentPage(title: String, datas: Map<String, String>, iconList: Map<String,
         tableWithColumn(4, SIDEBAR_PACK_APP_CONFIG, datas, apktool.xlcw.configParamKeys)
       }
     }
+    SIDEBAR_ALL_PROPERTY -> {
+      optionContentViewContainer(
+          title,
+          modifier.fillMaxHeight().padding(10.dp)
+      ) {
+        tableWithColumn(4, "", datas, datas.keys.toList())
+      }
+    }
   }
 }
 

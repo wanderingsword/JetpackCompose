@@ -10,6 +10,7 @@ import java.io.File
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 private val tempDir = "tempDir/"
 private const val platformConfigPath = "assets/platform_config.properties"
@@ -43,9 +44,10 @@ class ApkReader(apkPath: String) {
     paraMap[weChatPayActivityKey] = checkWeChatActivity()
 
     val dexDatas = parseDexFiles()
-    for (i in 0 until dexDatas.size) {
+    paraMap["classes"] = dexDatas[0].readMethodRefsCount().toString()
+    for (i in 1 until dexDatas.size) {
       val dex = dexDatas[i]
-      val k = "classes$i"
+      val k = "classes${i + 1}"
       paraMap[k] = dex.readMethodRefsCount().toString()
       if (!dexMethodCountKeys.contains(k)) {
         dexMethodCountKeys.add(k)
@@ -63,7 +65,7 @@ class ApkReader(apkPath: String) {
     }
 
     var secondaryDexData: ByteArray? = null
-    for (i in 1..30) {
+    for (i in 2..30) {
       secondaryDexData = apkFile.getFileData("classes$i.dex")
       if (secondaryDexData == null) {
         break
@@ -126,9 +128,7 @@ class ApkReader(apkPath: String) {
 
   private fun checkPlatform(apkPath: String) {
     println("OsType: ${paraMap["OsType"]}")
-    if (paraMap.containsKey("OsType")) {
-      paraMap["platform"] = paraMap["OsType"] ?: platformFromFileSuffix(apkPath)
-    }
+    paraMap["platform"] = paraMap["OsType"] ?: platformFromFileSuffix(apkPath)
   }
 
   private fun platformFromFileSuffix(apkPath: String): String {
@@ -187,10 +187,12 @@ class ApkReader(apkPath: String) {
           .replace("\"", "")
           .split(",")
           .forEach {
-            val propertyString = it.split(":")
+            val propertyString = it.trim().split(":")
 
-            if (propertyString.size == 2)
+            if (propertyString.size == 2) {
+              println("versionByte: ${propertyString[0]} -> ${propertyString[1]}")
               put(propertyString[0], propertyString[1])
+            }
           }
 
       println("---------------- end read $versionBytePath ------------------")

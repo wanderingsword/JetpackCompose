@@ -29,7 +29,7 @@ val operationFixParamKeys = mutableListOf(
     apkSignKey
 )
 
-val dexMethodCountKeys = mutableListOf<String>()
+val dexMethodCountKeys = mutableListOf("classes")
 
 const val weChatPayActivityKey = "微信支付 Activity："
 //技术固定参数
