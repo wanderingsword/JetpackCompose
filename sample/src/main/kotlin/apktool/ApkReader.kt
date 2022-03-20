@@ -44,6 +44,13 @@ class ApkReader(apkPath: String) {
     paraMap[weChatPayActivityKey] = checkWeChatActivity()
 
     val dexDatas = parseDexFiles()
+
+    if (dexMethodCountKeys.size > dexDatas.size) {
+      for (i in dexDatas.size + 1 .. dexMethodCountKeys.size) {
+        dexMethodCountKeys.remove("classes$i")
+      }
+    }
+
     paraMap["classes"] = dexDatas[0].readMethodRefsCount().toString()
     for (i in 1 until dexDatas.size) {
       val dex = dexDatas[i]
@@ -55,6 +62,7 @@ class ApkReader(apkPath: String) {
 
       if (!paraMap.containsKey(svnVersionCodeKey) || paraMap[svnVersionCodeKey] == "" ) {
         paraMap[svnVersionCodeKey] = dex.readSvnVersionCode()
+        println("read Svn version code: ${paraMap[svnVersionCodeKey]}")
       }
     }
   }
@@ -262,11 +270,18 @@ class ApkReader(apkPath: String) {
         .url("${configUrl}?${paramString}")
         .build()
 
-    showAlert("configUrl: ${request.url}")
-    showAlert("configUrl_resq: ${client.newCall(request).execute().body?.string()}")
+    //showAlert("configUrl: ${request.url}")
+    //showAlert("configUrl_resq: ${client.newCall(request).execute().body?.string()}")
+    var response: String
+    try {
+      response = client.newCall(request).execute().body?.string().toString()
+    } catch (ex: Exception) {
+      response = ex.toString()
+      ex.printStackTrace()
+    }
     return mapOf(
         ConfigUrlKey to "${request.url}",
-        ConfigUrlResqKey to "${client.newCall(request).execute().body?.string()}"
+        ConfigUrlResqKey to response
     )
   }
 

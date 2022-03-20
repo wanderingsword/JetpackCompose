@@ -36,7 +36,7 @@ const val weChatPayActivityKey = "微信支付 Activity："
 val techFixParamKeys = mutableListOf(
     configUrl,
     svnVersionCodeKey,
-    "XL_Game_Id",
+    "Xl_Game_Id",
     "XL_DATA_URL",
     "XL_DATA_AREA",
     "XL_DATA_ISIMEI",
