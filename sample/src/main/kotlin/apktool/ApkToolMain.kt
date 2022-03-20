@@ -26,12 +26,12 @@ const val ALL_ICON_TITLE = "所有图标"
 const val SIDEBAR_PROPERTY = "参数"
 const val SIDEBAR_PACK_APP_CONFIG = "出包配置参数"
 const val SIDEBAR_ALL_PROPERTY = "所有属性"
-//const val
 
 //private lateinit var apkReader: ApkReader
 
 
 class ApkToolMain {
+  var apkPath = mutableStateOf("/Users/zhouyanxia/Downloads/B2_ope_China2_Release_IL2CPP_xinghui_3.1.43_202203160625_xinghui_hsjg_3.1.43_202203161228_b1024.apk")
 
   fun main() = application {
     val showSideBar by remember { mutableStateOf(true) }
@@ -42,7 +42,7 @@ class ApkToolMain {
     ///Users/zhouyanxia/Downloads/B2_ope_China2_Release_IL2CPP_xlcw_3.1.42_202203160204_xlcw_clksdxhsj1098_3.1.43_202203161219_l1098.apk
     ///Users/zhouyanxia/Downloads/B2_ope_China2_Release_IL2CPP_xlcw_3.1.42_202203160204_xlcw_webpay_sgyyl_3.1.43_202203191029_l1096.apk
     //windows: E:\xlcw_webpay_hsyw.apk
-    var apkFilePath by remember { mutableStateOf("/Users/zhouyanxia/Downloads/B2_ope_China2_Release_IL2CPP_xinghui_3.1.43_202203160625_xinghui_hsjg_3.1.43_202203161228_b1024.apk") }
+    val apkFilePath by remember { apkPath }
     val apkReaderState = ApkReaderState()
     val options = mutableListOf(SIDEBAR_PROPERTY, SIDEBAR_PACK_APP_CONFIG, SIDEBAR_ALL_PROPERTY)
 
@@ -89,6 +89,13 @@ class ApkToolMain {
     override fun drop(dtde: DropTargetDropEvent) {
       dtde.acceptDrop(DnDConstants.ACTION_REFERENCE)
       val droppedFiles = dtde.transferable.getTransferData(DataFlavor.javaFileListFlavor) as List<*>
+      for(i in 0 until droppedFiles.size) {
+        val filePath = (droppedFiles[i] as File).absolutePath
+        println(filePath)
+        if(filePath.endsWith("apk")) {
+          apkPath.value = filePath
+        }
+      }
       droppedFiles.forEach { file ->
         println((file as File).absolutePath)
       }
